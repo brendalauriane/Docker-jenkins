@@ -9,6 +9,10 @@ pipeline {
     }
 
     stages {
-        // Les stages (Build/Run/Test/Deploy) 
+        stage('Build') {
+            steps {
+                bat "docker build -t sum-python-app \"%DIR_PATH%\""
+            }
+        }
     }
 }
