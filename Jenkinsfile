@@ -14,5 +14,16 @@ pipeline {
                 bat "docker build -t sum-python-app \"%DIR_PATH%\""
             }
         }
+
+        stage('Run') {
+    steps {
+        script {
+            def output = bat(script: 'docker run -d sum-python-app', returnStdout: true)
+            def lines = output.split('\n')
+            env.CONTAINER_ID = lines[-1].trim()
+            echo "CONTAINER_ID = ${env.CONTAINER_ID}"
+                }
+            }
+        }
     }
 }
