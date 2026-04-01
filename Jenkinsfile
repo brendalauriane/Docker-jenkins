@@ -64,4 +64,27 @@ stage('Test') {
             }
         }
     }
+
+    //  Étape 5 : Section post de netoyage 
+    post {
+        always {
+            script {
+                echo "Arrêt et suppression du conteneur Docker..."
+                
+                // On vérifie d'abord que l'ID du conteneur n'est pas vide
+                // (au cas où le pipeline aurait planté à l'étape Build, avant de créer le conteneur)
+                if (env.CONTAINER_ID != null && env.CONTAINER_ID.trim() != '') {
+                    // Stoppe le conteneur
+                    bat "docker stop ${env.CONTAINER_ID}"
+                    
+                    // Supprime le conteneur
+                    bat "docker rm ${env.CONTAINER_ID}"
+                    
+                    echo "Le conteneur ${env.CONTAINER_ID} a été arrêté et supprimé avec succès."
+                } else {
+                    echo "Aucun conteneur à supprimer (le pipeline s'est peut-être arrêté avant)."
+                }
+            }
+        }
+    }
 }
