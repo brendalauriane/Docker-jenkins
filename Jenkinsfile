@@ -24,35 +24,28 @@ pipeline {
         }
 
         stage('Run') {
-            steps {
-                script {
-                    /*
-                      Le prof donne l'idée suivante :
-                      def output = bat(script: 'COMMANDE DOCKER', returnStdout: true)
-                      def lines = output.split('\n')
-                      CONTAINER_ID = lines[-1].trim()
+    steps {
+        script {
 
-                      On garde exactement cette logique, mais en corrigeant :
-                      - %IMAGE_NAME% existe maintenant (déclaré en environment)
-                      - on enlève les lignes vides éventuelles avant de prendre la dernière ligne
-                    */
+            // Lancement du conteneur en mode détaché (-d)
+            def output = bat(
+                script: "docker run -d sum-python-app",
+                returnStdout: true
+            )
 
-                    // @echo off limite le "bruit" CMD dans stdout
-                    def output = bat(script: "@echo off\r\ndocker run -d %IMAGE_NAME%", returnStdout: true)
+            // Découper la sortie en lignes
+            def lines = output.split(/\r?\n/)
 
-                    // Split des lignes (Windows peut renvoyer \r\n)
-                    def lines = output.split(/\r?\n/)
+            // Supprimer les lignes vides (Windows ajoute parfois des lignes vides)
+            lines = lines.findAll { it.trim() }
 
-                    // Supprimer les lignes vides (sinon lines[-1] peut être vide)
-                    lines = lines.findAll { it.trim() }
+            // Récupérer la dernière ligne = ID du conteneur
+            env.CONTAINER_ID = lines[-1].trim()
 
-                    // Dernière ligne = ID du conteneur
-                    env.CONTAINER_ID = lines[-1].trim()
-
-                    echo "ID DU CONTENEUR = ${env.CONTAINER_ID}"
-                }
-            }
+            echo "ID DU CONTENEUR = ${env.CONTAINER_ID}"
         }
+    }
+}
 
         stage('Test') {
             steps {
