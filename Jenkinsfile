@@ -104,6 +104,25 @@ pipeline {
                 }
             }
         }
+        // ETAPE 6
+
+        stage('Deploy') {
+    steps {
+        script {
+
+            // 1. Connexion à DockerHub
+            bat "docker login -u TON_USERNAME -p TON_PASSWORD"
+
+            // 2. Taguer l’image avec le nom du dépôt DockerHub
+            bat "docker tag sum-python-app TON_USERNAME/sum-python-app:latest"
+
+            // 3. Pousser l’image vers DockerHub
+            bat "docker push TON_USERNAME/sum-python-app:latest"
+
+            echo "Image poussée avec succès vers DockerHub."
+                }
+            }
+        }
 
     }
 
