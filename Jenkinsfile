@@ -16,12 +16,16 @@ pipeline {
         }
 
         stage('Run') {
-    steps {
-        script {
-            def output = bat(script: 'docker run -d sum-python-app', returnStdout: true)
-            def lines = output.split('\n')
-            env.CONTAINER_ID = lines[-1].trim()
-            echo "CONTAINER_ID = ${env.CONTAINER_ID}"
+            steps {
+                script {
+                    // Le @echo off empêche Windows de polluer le texte
+                    // Le .trim() retire les sauts de ligne vides
+                    def output = bat(script: "@echo off\ndocker run -d %IMAGE_NAME%", returnStdout: true).trim()
+                    def lines = output.split(/\r?\n/)
+                    
+                    // On prend la dernière ligne qui est le vrai ID du conteneur
+                    env.CONTAINER_ID = lines[-1].trim()
+                    echo "ID DU CONTENEUR = ${env.CONTAINER_ID}"
                 }
             }
         }
